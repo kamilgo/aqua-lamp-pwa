@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <!-- Glow effect -->
+  <circle cx="96" cy="96" r="80" fill="#fff4cc" opacity="0.6"/>
+  
+  <!-- Bulb glass -->
+  <path d="M96 40 C60 40 50 70 50 100 C50 120 70 135 75 140 L117 140 C122 135 142 120 142 100 C142 70 132 40 96 40" fill="#ffd54f"/>
+  
+  <!-- Bulb base -->
+  <path d="M75 140 L75 150 L117 150 L117 140 Z" fill="#bf9d3a"/>
+  <path d="M80 150 L80 160 L112 160 L112 150 Z" fill="#8c7229"/>
+  
+  <!-- Light rays -->
+  <path d="M96 20 L96 5" stroke="#ffd54f" stroke-width="4" stroke-linecap="round"/>
+  <path d="M140 40 L150 25" stroke="#ffd54f" stroke-width="4" stroke-linecap="round"/>
+  <path d="M52 40 L42 25" stroke="#ffd54f" stroke-width="4" stroke-linecap="round"/>
+  <path d="M170 96 L185 96" stroke="#ffd54f" stroke-width="4" stroke-linecap="round"/>
+  <path d="M22 96 L7 96" stroke="#ffd54f" stroke-width="4" stroke-linecap="round"/>
+</svg>
