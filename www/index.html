@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4a90e2">
+    <title>Konfiguracja lampy</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4a90e2;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #357abd;
+        }
+        .status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .collapsible {
+            background-color: #f8f9fa;
+            color: #444;
+            cursor: pointer;
+            padding: 18px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        .active, .collapsible:hover {
+            background-color: #eff1f3;
+        }
+        .collapsible:after {
+            content: '\002B';
+            color: #777;
+            font-weight: bold;
+            float: right;
+            margin-left: 5px;
+        }
+        .active:after {
+            content: "\2212";
+        }
+        .channel-content {
+            padding: 0 18px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.2s ease-out;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Device Configuration</h1>
+    <form id="configForm">
+        <div class="form-group">
+            <label for="deviceIP">Device IP:</label>
+            <input type="text" id="deviceIP" required pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$">
+        </div>
+        <div class="form-group">
+            <label for="time">Time:</label>
+            <input type="datetime-local" id="time" required>
+        </div>
+        <div class="form-group">
+            <label for="wifiName">WiFi Name:</label>
+            <input type="text" id="wifiName" required>
+        </div>
+        <div class="form-group">
+            <label for="wifiPassword">WiFi Password:</label>
+            <input type="password" id="wifiPassword" required>
+        </div>
+
+        <button type="button" class="collapsible">Channel Settings</button>
+        <div class="channel-content">
+            <div class="form-group">
+                <label for="channelName1">Channel name 1:</label>
+                <input type="text" id="channelName1">
+            </div>
+            <div class="form-group">
+                <label for="channelName2">Channel name 2:</label>
+                <input type="text" id="channelName2">
+            </div>
+            <div class="form-group">
+                <label for="channelName3">Channel name 3:</label>
+                <input type="text" id="channelName3">
+            </div>
+            <div class="form-group">
+                <label for="channelName4">Channel name 4:</label>
+                <input type="text" id="channelName4">
+            </div>
+            <div class="form-group">
+                <label for="channelName5">Channel name 5:</label>
+                <input type="text" id="channelName5">
+            </div>
+            <div class="form-group">
+                <label for="channelName6">Channel name 6:</label>
+                <input type="text" id="channelName6">
+            </div>
+            <div class="form-group">
+                <label for="channelName7">Channel name 7:</label>
+                <input type="text" id="channelName7">
+            </div>
+            <div class="form-group">
+                <label for="channelName8">Channel name 8:</label>
+                <input type="text" id="channelName8">
+            </div>
+        </div>
+
+        <button type="submit">Save</button>
+    </form>
+    <div id="status" class="status"></div>
+
+    <script>
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(registration => console.log('ServiceWorker registered'))
+                .catch(error => console.log('ServiceWorker registration failed:', error));
+        }
+ 
+        // Collapsible functionality
+        const coll = document.getElementsByClassName("collapsible");
+        for (let i = 0; i < coll.length; i++) {
+            coll[i].addEventListener("click", function() {
+                this.classList.toggle("active");
+                const content = this.nextElementSibling;
+                if (content.style.maxHeight) {
+                    content.style.maxHeight = null;
+                } else {
+                    content.style.maxHeight = content.scrollHeight + "px";
+                }
+            });
+        }
+
+        // Load saved data from localStorage
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedData = JSON.parse(localStorage.getItem('deviceConfig') || '{}');
+            if (savedData.deviceIP) document.getElementById('deviceIP').value = savedData.deviceIP;
+            if (savedData.time) document.getElementById('time').value = savedData.time;
+            if (savedData.wifiName) document.getElementById('wifiName').value = savedData.wifiName;
+            if (savedData.wifiPassword) document.getElementById('wifiPassword').value = savedData.wifiPassword;
+            
+            // Load channel names
+            for (let i = 1; i <= 8; i++) {
+                const channelId = `channelName${i}`;
+                if (savedData[channelId]) {
+                    document.getElementById(channelId).value = savedData[channelId];
+                }
+            }
+        });
+
+        // Handle form submission
+        document.getElementById('configForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                deviceIP: document.getElementById('deviceIP').value,
+                time: document.getElementById('time').value,
+                wifiName: document.getElementById('wifiName').value,
+                wifiPassword: document.getElementById('wifiPassword').value
+            };
+
+            // Add channel names to formData
+            for (let i = 1; i <= 8; i++) {
+                const channelId = `channelName${i}`;
+                formData[channelId] = document.getElementById(channelId).value;
+            }
+
+            // Save to localStorage
+            localStorage.setItem('deviceConfig', JSON.stringify(formData));
+
+            const statusDiv = document.getElementById('status');
+            
+            try {
+                const response = await fetch(`http://${formData.deviceIP}/store`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    statusDiv.textContent = 'Configuration saved successfully!';
+                    statusDiv.className = 'status success';
+                } else {
+                    throw new Error('Failed to save configuration');
+                }
+            } catch (error) {
+                statusDiv.textContent = 'Error saving configuration. Data saved locally.';
+                statusDiv.className = 'status error';
+            }
+            statusDiv.style.display = 'block';
+        });
+    </script>
+</body>
+</html>
