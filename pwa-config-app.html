@@ -9,8 +9,27 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            padding-top: 180px; /* Space for fixed header */
+        }
+        .header-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 15px 20px;
+            z-index: 1000;
+        }
+        .header-content {
             max-width: 600px;
-            margin: 20px auto;
+            margin: 0 auto;
+        }
+        .main-content {
+            max-width: 600px;
+            margin: 0 auto;
             padding: 0 20px;
         }
         .form-group {
@@ -133,71 +152,78 @@
     </style>
 </head>
 <body>
-    <h1>Device Configuration</h1>
-    <form id="configForm">
-        <div class="form-group">
-            <label for="deviceIP">Device IP:</label>
-            <input type="text" id="deviceIP" required pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$">
-        </div>
-        <div class="form-group">
-            <label for="time">Time:</label>
-            <input type="datetime-local" id="time" required>
-        </div>
-        <div class="form-group">
-            <label for="wifiName">WiFi Name:</label>
-            <input type="text" id="wifiName" required>
-        </div>
-        <div class="form-group">
-            <label for="wifiPassword">WiFi Password:</label>
-            <input type="password" id="wifiPassword" required>
-        </div>
-
-        <button type="button" class="collapsible">Channel Settings</button>
-        <div class="channel-content">
-            <div class="form-group">
-                <label for="channelName1">Channel name 1:</label>
-                <input type="text" id="channelName1">
-            </div>
-            <div class="form-group">
-                <label for="channelName2">Channel name 2:</label>
-                <input type="text" id="channelName2">
-            </div>
-            <div class="form-group">
-                <label for="channelName3">Channel name 3:</label>
-                <input type="text" id="channelName3">
-            </div>
-            <div class="form-group">
-                <label for="channelName4">Channel name 4:</label>
-                <input type="text" id="channelName4">
-            </div>
-            <div class="form-group">
-                <label for="channelName5">Channel name 5:</label>
-                <input type="text" id="channelName5">
-            </div>
-            <div class="form-group">
-                <label for="channelName6">Channel name 6:</label>
-                <input type="text" id="channelName6">
-            </div>
-            <div class="form-group">
-                <label for="channelName7">Channel name 7:</label>
-                <input type="text" id="channelName7">
-            </div>
-            <div class="form-group">
-                <label for="channelName8">Channel name 8:</label>
-                <input type="text" id="channelName8">
+    <form id="configForm" onsubmit="return false;">
+        <div class="header-panel">
+            <div class="header-content">
+                <h1>Device Configuration</h1>
+                <button type="button" onclick="submitForm()">Save</button>
+                <div id="status" class="status"></div>
             </div>
         </div>
 
-    <!-- Schedules settings section -->
-        <button type="button" class="collapsible">Schedule Settings</button>
-        <div class="channel-content">
-            <button type="button" id="addSchedule" class="button">Add Schedule</button>
-            <div id="scheduleContainer"></div>
-        </div>
+        <div class="main-content">
+            <div class="form-group">
+                <label for="deviceIP">Device IP:</label>
+                <input type="text" id="deviceIP" required pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$">
+            </div>
+            <div class="form-group">
+                <label for="time">Time:</label>
+                <input type="datetime-local" id="time" required>
+            </div>
+            <div class="form-group">
+                <label for="wifiName">WiFi Name:</label>
+                <input type="text" id="wifiName" required>
+            </div>
+            <div class="form-group">
+                <label for="wifiPassword">WiFi Password:</label>
+                <input type="password" id="wifiPassword" required>
+            </div>
 
-        <button type="submit">Save</button>
+            <button type="button" class="collapsible">Channel Settings</button>
+            <div class="channel-content">
+                <div class="form-group">
+                    <label for="channelName1">Channel name 1:</label>
+                    <input type="text" id="channelName1">
+                </div>
+                <div class="form-group">
+                    <label for="channelName2">Channel name 2:</label>
+                    <input type="text" id="channelName2">
+                </div>
+                <div class="form-group">
+                    <label for="channelName3">Channel name 3:</label>
+                    <input type="text" id="channelName3">
+                </div>
+                <div class="form-group">
+                    <label for="channelName4">Channel name 4:</label>
+                    <input type="text" id="channelName4">
+                </div>
+                <div class="form-group">
+                    <label for="channelName5">Channel name 5:</label>
+                    <input type="text" id="channelName5">
+                </div>
+                <div class="form-group">
+                    <label for="channelName6">Channel name 6:</label>
+                    <input type="text" id="channelName6">
+                </div>
+                <div class="form-group">
+                    <label for="channelName7">Channel name 7:</label>
+                    <input type="text" id="channelName7">
+                </div>
+                <div class="form-group">
+                    <label for="channelName8">Channel name 8:</label>
+                    <input type="text" id="channelName8">
+                </div>
+            </div>
+
+        <!-- Schedules settings section -->
+            <button type="button" class="collapsible">Schedule Settings</button>
+            <div class="channel-content">
+                <button type="button" id="addSchedule" class="button">Add Schedule</button>
+                <div id="scheduleContainer"></div>
+            </div>
+
+        </div>
     </form>
-    <div id="status" class="status"></div>
 
     <script>
         // Register service worker
@@ -429,8 +455,7 @@
         });
 
         // Handle form submission
-        document.getElementById('configForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        async function submitForm() {
             
             const formData = {
                 deviceIP: document.getElementById('deviceIP').value,
@@ -458,6 +483,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
                     },
                     body: JSON.stringify(formData)
                 });
@@ -473,7 +499,7 @@
                 statusDiv.className = 'status error';
             }
             statusDiv.style.display = 'block';
-        });
+        }
     </script>
 </body>
 </html>
