@@ -478,10 +478,18 @@
             localStorage.setItem('deviceConfig', formDataAsString);
 
             const statusDiv = document.getElementById('status');
+
+            // Get timezone offset in minutes
+            const timezoneOffset = new Date().getTimezoneOffset();
+            // Note: getTimezoneOffset() returns the offset in minutes, but reversed
+            // For example: for UTC+2 it returns -120
+            // So we need to negate it to get the correct offset
+            const tzOffsetForDevice = -timezoneOffset;
             
             dataToBeSent = JSON.stringify({
                 time: document.getElementById('time').checked ?
                     parseInt(Date.now().toString().substr(0,10)) : 0,
+                timezone_offset: tzOffsetForDevice,
                 wifiName: document.getElementById('wifiName').value,
                 wifiPassword: document.getElementById('wifiPassword').value,
                 schedules: schedules
