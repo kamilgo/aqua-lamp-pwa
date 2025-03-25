@@ -251,7 +251,7 @@
         class Schedule {
             constructor() {
                 this.id = Date.now(); // Unique identifier
-                this.days = [];
+                this.days = []; // Will store numbers 1-7 instead of day names (1-Monday, 2-Tuesday, etc.)
                 this.startHour = 0;
                 this.startMinute = 0;
                 this.endHour = 0;
@@ -282,7 +282,7 @@
                             .map((day, index) => `
                                 <div class="day-checkbox">
                                     <input type="checkbox" id="day${schedule.id}_${index}" 
-                                        ${schedule.days.includes(day) ? 'checked' : ''}>
+                                        ${schedule.days.includes(index + 1) ? 'checked' : ''}>
                                     <label for="day${schedule.id}_${index}">${day}</label>
                                 </div>
                             `).join('')}
@@ -367,9 +367,8 @@
 
                 // Update days
                 if (e.target.type === 'checkbox') {
-                    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
                     schedules[scheduleIndex].days = Array.from(div.querySelectorAll('input[type="checkbox"]'))
-                        .map((cb, i) => cb.checked ? days[i] : null)
+                        .map((cb, i) => cb.checked ? i + 1 : null)
                         .filter(Boolean);
                 }
 
