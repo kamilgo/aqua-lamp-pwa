@@ -103,6 +103,7 @@
             padding: 10px;
             border-radius: 4px;
             display: none;
+            cursor: pointer;
         }
 
         .success {
@@ -305,6 +306,9 @@
                 }
             });
         }
+
+        // Current language
+        let currentLang = 'en';
 
         // Schedule class definition
         class Schedule {
@@ -510,6 +514,14 @@
                     document.getElementById('scheduleContainer').appendChild(createScheduleElement(schedule));
                 });
             }
+
+            // Translate the page
+            translateOnLoad();
+        });
+
+        // Add click handler for status messages
+        document.getElementById('status').addEventListener('click', function () {
+            this.style.display = 'none';
         });
 
         // Handle form submission
@@ -565,13 +577,13 @@
                 });
 
                 if (response.ok) {
-                    statusDiv.textContent = 'Configuration saved successfully!';
+                    statusDiv.textContent = translations[currentLang]['Configuration saved successfully!'];
                     statusDiv.className = 'status success';
                 } else {
                     throw new Error('Failed to save configuration');
                 }
             } catch (error) {
-                statusDiv.textContent = 'Error saving configuration. Data saved locally.';
+                statusDiv.textContent = translations[currentLang]['Error saving configuration. Data saved locally.'];
                 statusDiv.className = 'status error';
             }
             statusDiv.style.display = 'block';
@@ -607,7 +619,7 @@
                 'Channels:': 'Channels:',
                 'Remove Schedule': 'Remove Schedule',
                 'Configuration saved successfully!': 'Configuration saved successfully!',
-                'Error saving configuration. Data saved locally.': 'Error saving configuration. Data saved locally.',
+                'Error saving configuration. Data saved locally.': 'Error sending configuration to the device. Data saved locally.',
             },
             pl: {
                 'Device Configuration': 'Konfiguracja urządzenia',
@@ -631,12 +643,11 @@
                 'Channels:': 'Kanały:',
                 'Remove Schedule': 'Usuń harmonogram',
                 'Configuration saved successfully!': 'Konfiguracja została zapisana pomyślnie!',
-                'Error saving configuration. Data saved locally.': 'Błąd zapisywania konfiguracji. Dane zapisano lokalnie.',
+                'Error saving configuration. Data saved locally.': 'Błąd wysyłania konfiguracji. Dane zapisano lokalnie.',
             }
         };
 
-        // Current language
-        let currentLang = 'en';
+        
 
         // Function to toggle language
         function toggleLanguage() {
@@ -659,7 +670,7 @@
         }
 
         // Add data-translate attributes to elements on page load
-        document.addEventListener('DOMContentLoaded', () => {
+        translateOnLoad = () => {
             // Load saved language preference
             currentLang = localStorage.getItem('language') || 'en';
             document.getElementById('langToggle').textContent = currentLang === 'en' ? 'PL' : 'EN';
@@ -671,7 +682,7 @@
             });
 
             translatePage();
-        });
+        };
     </script>
 </body>
 
