@@ -225,6 +225,8 @@
             <div class="form-group">
                 <label for="deviceIP">Device IP:</label>
                 <input type="text" id="deviceIP" required pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$">
+                <button type="button" onclick="checkDeviceConnection()" id="checkConnection" style="width: auto;"
+                    data-translate="Check connection">Check connection</button>
             </div>
             <div class="form-group">
                 <label for="time">Synchronize with your local time?:</label>
@@ -587,7 +589,32 @@
                 statusDiv.className = 'status error';
             }
             statusDiv.style.display = 'block';
-        }
+        };
+
+        async function checkDeviceConnection() {
+            const deviceIP = document.getElementById('deviceIP').value;
+            const statusDiv = document.getElementById('status');
+
+            try {
+                const response = await fetch(`http://${deviceIP}/ping`, {
+                    signal: AbortSignal.timeout(1000)//, // 1 second timeout
+                    //mode: 'no-cors'
+                });
+
+                const text = await response.text();
+                if (response.ok && text === 'pong') {
+                    statusDiv.textContent = translations[currentLang]['Connected successfully'];
+                    statusDiv.className = 'status success';
+                } else {
+                    throw new Error('Invalid response');
+                }
+            } catch (error) {
+                statusDiv.textContent = translations[currentLang]['Connection failed'];
+                statusDiv.className = 'status error';
+            }
+
+            statusDiv.style.display = 'block';
+        };
 
         /* **************************************************** *
          * Translations                                         *
@@ -620,6 +647,9 @@
                 'Remove Schedule': 'Remove Schedule',
                 'Configuration saved successfully!': 'Configuration saved successfully!',
                 'Error saving configuration. Data saved locally.': 'Error sending configuration to the device. Data saved locally.',
+                'Check connection': 'Check connection',
+                'Connected successfully': 'Connected successfully',
+                'Connection failed': 'Connection failed'
             },
             pl: {
                 'Device Configuration': 'Konfiguracja urządzenia',
@@ -644,10 +674,13 @@
                 'Remove Schedule': 'Usuń harmonogram',
                 'Configuration saved successfully!': 'Konfiguracja została zapisana pomyślnie!',
                 'Error saving configuration. Data saved locally.': 'Błąd wysyłania konfiguracji. Dane zapisano lokalnie.',
+                'Check connection': 'Sprawdź połączenie',
+                'Connected successfully': 'Połączono pomyślnie',
+                'Connection failed': 'Połączenie nieudane'
             }
         };
 
-        
+
 
         // Function to toggle language
         function toggleLanguage() {
