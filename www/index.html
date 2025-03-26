@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,41 +12,57 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            padding-top: 180px; /* Space for fixed header */
+            padding-top: 180px;
+            /* Space for fixed header */
         }
+
         .header-panel {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             background-color: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             padding: 15px 20px;
             z-index: 1000;
         }
+
         .header-content {
             max-width: 600px;
             margin: 0 auto;
         }
+
+        .header-lang {
+            display: flex;
+            justify-content: space-between;
+            align-items: left;
+            width: 100%;
+            flex-wrap: nowrap;
+        }
+
         .main-content {
             max-width: 600px;
             margin: 0 auto;
             padding: 0 20px;
         }
+
         .form-group {
             margin-bottom: 15px;
         }
+
         label {
-            display: block;
+            display: inline-block;
             margin-bottom: 5px;
             font-weight: bold;
         }
+
         input {
-            width: 100%;
+            /*width: 100%;*/
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
         }
+
         button {
             background-color: #4a90e2;
             color: white;
@@ -55,23 +72,49 @@
             cursor: pointer;
             width: 100%;
         }
+
         button:hover {
             background-color: #357abd;
         }
+
+        #langToggle {
+            background-color: #ffffff;
+            color: rgb(0, 0, 0);
+            padding: 10px 20px;
+            border-bottom: solid 1px #4a90e2;
+            border-radius: 4px;
+            cursor: pointer;
+            right: -20px;
+            width: auto;
+            height: fit-content;
+            transition: all 1s;
+        }
+
+        #langToggle:hover {
+            border: solid 1px #357abd;
+            background-color: #357abd;
+            color: rgb(255, 255, 255);
+            right: 0px;
+            transition: all 1s;
+        }
+
         .status {
             margin-top: 15px;
             padding: 10px;
             border-radius: 4px;
             display: none;
         }
+
         .success {
             background-color: #d4edda;
             color: #155724;
         }
+
         .error {
             background-color: #f8d7da;
             color: #721c24;
         }
+
         .collapsible {
             background-color: #f8f9fa;
             color: #444;
@@ -86,9 +129,12 @@
             border-radius: 4px;
             border: 1px solid #ddd;
         }
-        .active, .collapsible:hover {
+
+        .active,
+        .collapsible:hover {
             background-color: #eff1f3;
         }
+
         .collapsible:after {
             content: '\002B';
             color: #777;
@@ -96,9 +142,11 @@
             float: right;
             margin-left: 5px;
         }
+
         .active:after {
             content: "\2212";
         }
+
         .channel-content {
             padding: 0 18px;
             max-height: 0;
@@ -110,7 +158,7 @@
             border-radius: 0 0 4px 4px;
             margin-bottom: 15px;
         }
-	
+
         /* Schedules sections style */
         .schedule-group {
             border: 1px solid #ddd;
@@ -119,43 +167,54 @@
             border-radius: 4px;
             background-color: #f8f9fa;
         }
+
         .days-group {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
             margin-bottom: 15px;
         }
+
         .day-checkbox {
             display: flex;
             align-items: center;
             gap: 5px;
         }
+
         .time-group {
             display: flex;
             gap: 10px;
             align-items: center;
             margin-bottom: 15px;
         }
+
         .time-input {
             width: 70px !important;
         }
+
         .remove-schedule {
             background-color: #dc3545;
             margin-top: 15px;
         }
+
         .remove-schedule:hover {
             background-color: #c82333;
         }
+
         .channels-select {
             min-height: 100px;
         }
     </style>
 </head>
+
 <body>
     <form id="configForm" onsubmit="return false;">
         <div class="header-panel">
             <div class="header-content">
-                <h1>Device Configuration</h1>
+                <div class="header-lang">
+                    <h1>Device Configuration</h1>
+                    <button type="button" onclick="toggleLanguage()" id="langToggle">PL</button>
+                </div>
                 <button type="button" onclick="submitForm()">Save</button>
                 <div id="status" class="status"></div>
             </div>
@@ -215,7 +274,7 @@
                 </div>
             </div>
 
-        <!-- Schedules settings section -->
+            <!-- Schedules settings section -->
             <button type="button" class="collapsible">Schedule Settings</button>
             <div class="channel-content">
                 <button type="button" id="addSchedule" class="button">Add Schedule</button>
@@ -236,7 +295,7 @@
         // Collapsible functionality
         const coll = document.getElementsByClassName("collapsible");
         for (let i = 0; i < coll.length; i++) {
-            coll[i].addEventListener("click", function() {
+            coll[i].addEventListener("click", function () {
                 this.classList.toggle("active");
                 const content = this.nextElementSibling;
                 if (content.style.maxHeight) {
@@ -279,7 +338,7 @@
                     <label>Days:</label>
                     <div class="days-group">
                         ${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-                            .map((day, index) => `
+                    .map((day, index) => `
                                 <div class="day-checkbox">
                                     <input type="checkbox" id="day${schedule.id}_${index}" 
                                         ${schedule.days.includes(index + 1) ? 'checked' : ''}>
@@ -335,12 +394,12 @@
                 <div class="form-group">
                     <label>Channels:</label>
                     <select multiple class="channels-select">
-                        ${Array.from({length: 8}, (_, i) => {
-                            const channelName = document.getElementById(`channelName${i+1}`).value || `Channel ${i+1}`;
-                            return `<option value="${i+1}" ${schedule.channels.includes(i+1) ? 'selected' : ''}>
+                        ${Array.from({ length: 8 }, (_, i) => {
+                const channelName = document.getElementById(`channelName${i + 1}`).value || `Channel ${i + 1}`;
+                return `<option value="${i + 1}" ${schedule.channels.includes(i + 1) ? 'selected' : ''}>
                                 ${channelName}
                             </option>`;
-                        }).join('')}
+            }).join('')}
                     </select>
                 </div>`;
 
@@ -435,7 +494,7 @@
             document.getElementById('time').checked = savedData.time;
             if (savedData.wifiName) document.getElementById('wifiName').value = savedData.wifiName;
             if (savedData.wifiPassword) document.getElementById('wifiPassword').value = savedData.wifiPassword;
-            
+
             // Load channel names
             for (let i = 1; i <= 8; i++) {
                 const channelId = `channelName${i}`;
@@ -455,7 +514,7 @@
 
         // Handle form submission
         async function submitForm() {
-            
+
             const formData = {
                 deviceIP: document.getElementById('deviceIP').value,
                 time: document.getElementById('time').checked,
@@ -484,10 +543,10 @@
             // For example: for UTC+2 it returns -120
             // So we need to negate it to get the correct offset
             const tzOffsetForDevice = -timezoneOffset;
-            
+
             dataToBeSent = JSON.stringify({
                 time: document.getElementById('time').checked ?
-                    parseInt(Date.now().toString().substr(0,10)) : 0,
+                    parseInt(Date.now().toString().substr(0, 10)) : 0,
                 timezone_offset: tzOffsetForDevice,
                 wifiName: document.getElementById('wifiName').value,
                 wifiPassword: document.getElementById('wifiPassword').value,
@@ -517,6 +576,103 @@
             }
             statusDiv.style.display = 'block';
         }
+
+        /* **************************************************** *
+         * Translations                                         *
+         *                                                      *
+         * The translations object contains translations for    *
+         * different languages.                                 *
+         *                                                      *
+         ****************************************************** */
+        const translations = {
+            en: {
+                'Device Configuration': 'Device Configuration',
+                'Save': 'Save',
+                'Device IP:': 'Device IP:',
+                'Synchronize with your local time?:': 'Synchronize with your local time?:',
+                'WiFi Name:': 'WiFi Name:',
+                'WiFi Password:': 'WiFi Password:',
+                'Channel Settings': 'Channel Settings',
+                'Channel name': 'Channel name',
+                'Schedule Settings': 'Schedule Settings',
+                'Add Schedule': 'Add Schedule',
+                'Days:': 'Days:',
+                'Start Time:': 'Start Time:',
+                'End Time:': 'End Time:',
+                'Start Duty (%)': 'Start Duty (%)',
+                'Max Duty (%)': 'Max Duty (%)',
+                'End Duty (%)': 'End Duty (%)',
+                'Start Interval (minutes):': 'Start Interval (minutes):',
+                'End Interval (minutes):': 'End Interval (minutes):',
+                'Channels:': 'Channels:',
+                'Remove Schedule': 'Remove Schedule',
+                'Configuration saved successfully!': 'Configuration saved successfully!',
+                'Error saving configuration. Data saved locally.': 'Error saving configuration. Data saved locally.',
+            },
+            pl: {
+                'Device Configuration': 'Konfiguracja urządzenia',
+                'Save': 'Zapisz',
+                'Device IP:': 'IP urządzenia:',
+                'Synchronize with your local time?:': 'Synchronizować z czasem lokalnym?:',
+                'WiFi Name:': 'Nazwa WiFi:',
+                'WiFi Password:': 'Hasło WiFi:',
+                'Channel Settings': 'Ustawienia kanałów',
+                'Channel name': 'Nazwa kanału',
+                'Schedule Settings': 'Ustawienia harmonogramu',
+                'Add Schedule': 'Dodaj harmonogram',
+                'Days:': 'Dni:',
+                'Start Time:': 'Czas rozpoczęcia:',
+                'End Time:': 'Czas zakończenia:',
+                'Start Duty (%)': 'Początkowe wypełnienie (%)',
+                'Max Duty (%)': 'Maksymalne wypełnienie (%)',
+                'End Duty (%)': 'Końcowe wypełnienie (%)',
+                'Start Interval (minutes):': 'Początkowy interwał (minuty):',
+                'End Interval (minutes):': 'Końcowy interwał (minuty):',
+                'Channels:': 'Kanały:',
+                'Remove Schedule': 'Usuń harmonogram',
+                'Configuration saved successfully!': 'Konfiguracja została zapisana pomyślnie!',
+                'Error saving configuration. Data saved locally.': 'Błąd zapisywania konfiguracji. Dane zapisano lokalnie.',
+            }
+        };
+
+        // Current language
+        let currentLang = 'en';
+
+        // Function to toggle language
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'pl' : 'en';
+            document.getElementById('langToggle').textContent = currentLang === 'en' ? 'PL' : 'EN';
+            translatePage();
+            // Save language preference
+            localStorage.setItem('language', currentLang);
+        }
+
+        // Function to translate the page
+        function translatePage() {
+            // Translate all elements with data-translate attribute
+            document.querySelectorAll('[data-translate]').forEach(element => {
+                const key = element.getAttribute('data-translate');
+                if (translations[currentLang][key]) {
+                    element.textContent = translations[currentLang][key];
+                }
+            });
+        }
+
+        // Add data-translate attributes to elements on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load saved language preference
+            currentLang = localStorage.getItem('language') || 'en';
+            document.getElementById('langToggle').textContent = currentLang === 'en' ? 'PL' : 'EN';
+
+            // Add data-translate attributes to all labels and headings
+            document.querySelectorAll('label, h1, button').forEach(element => {
+                const text = element.textContent.trim();
+                element.setAttribute('data-translate', text);
+            });
+
+            translatePage();
+        });
     </script>
 </body>
+
 </html>
