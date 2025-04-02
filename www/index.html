@@ -290,7 +290,7 @@
     <script>
         // Register service worker
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js')
+            navigator.serviceWorker.register('service-worker.js')
                 .then(registration => console.log('ServiceWorker registered'))
                 .catch(error => console.log('ServiceWorker registration failed:', error));
         }
@@ -567,13 +567,12 @@
                 schedules: schedules
             });
             try {
-                const response = await fetch(`http://${formData.deviceIP}/store`, {
-                    mode: 'no-cors',
+                const response = await fetch(`${getDeviceURL()}/store`, {
+                    mode: 'cors',
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Content-Length': dataToBeSent.length,
-                        //'Access-Control-Allow-Origin': '*'
                     },
                     body: dataToBeSent
                 });
@@ -596,13 +595,21 @@
             const statusDiv = document.getElementById('status');
 
             try {
-                const response = await fetch(`http://${deviceIP}/ping`, {
-                    signal: AbortSignal.timeout(1000)//, // 1 second timeout
-                    //mode: 'no-cors'
+                const response = await fetch(`${getDeviceURL()}/ping`, {
+                    signal: AbortSignal.timeout(5000), // 1 second timeout
+                    mode: 'cors',
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
                 });
 
-                const text = await response.text();
-                if (response.ok && text === 'pong') {
+                const data = await response.json();
+                console.log(data);
+                if (data && data.message) {
+                    console.log(data.message);
+                }
+                if (response.ok && data.message === 'pong') {
                     statusDiv.textContent = translations[currentLang]['Connected successfully'];
                     statusDiv.className = 'status success';
                 } else {
@@ -716,6 +723,11 @@
 
             translatePage();
         };
+
+        function getDeviceURL() {
+            const deviceIP = document.getElementById('deviceIP').value;
+            return `https://${deviceIP}`;
+        }
     </script>
 </body>
 
