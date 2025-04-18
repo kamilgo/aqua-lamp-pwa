@@ -205,6 +205,21 @@
         .channels-select {
             min-height: 100px;
         }
+
+        .channel-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        input[type="range"] {
+            width: 200px;
+        }
+
+        input[type="range"]:disabled {
+            opacity: 0.5;
+        }
     </style>
 </head>
 
@@ -246,34 +261,82 @@
                 <div class="form-group">
                     <label for="channelName1">Channel name 1:</label>
                     <input type="text" id="channelName1">
+                    <div class="channel-controls">
+                        <input type="checkbox" id="channel1Enabled" onchange="toggleSlider(1)">
+                        <label for="channel1Enabled">Enable Channel 1</label>
+                        <input type="range" id="channel1PWM" min="0" max="100" value="50" disabled>
+                        <span id="channel1Value">50%</span>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="channelName2">Channel name 2:</label>
                     <input type="text" id="channelName2">
+                    <div class="channel-controls">
+                        <input type="checkbox" id="channel2Enabled" onchange="toggleSlider(2)">
+                        <label for="channel2Enabled">Enable Channel 2</label>
+                        <input type="range" id="channel2PWM" min="0" max="100" value="50" disabled>
+                        <span id="channel2Value">50%</span>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="channelName3">Channel name 3:</label>
                     <input type="text" id="channelName3">
+                    <div class="channel-controls">
+                        <input type="checkbox" id="channel3Enabled" onchange="toggleSlider(3)">
+                        <label for="channel3Enabled">Enable Channel 3</label>
+                        <input type="range" id="channel3PWM" min="0" max="100" value="50" disabled>
+                        <span id="channel3Value">50%</span>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="channelName4">Channel name 4:</label>
                     <input type="text" id="channelName4">
+                    <div class="channel-controls">
+                        <input type="checkbox" id="channel4Enabled" onchange="toggleSlider(4)">
+                        <label for="channel4Enabled">Enable Channel 4</label>
+                        <input type="range" id="channel4PWM" min="0" max="100" value="50" disabled>
+                        <span id="channel4Value">50%</span>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="channelName5">Channel name 5:</label>
                     <input type="text" id="channelName5">
+                    <div class="channel-controls">
+                        <input type="checkbox" id="channel5Enabled" onchange="toggleSlider(5)">
+                        <label for="channel5Enabled">Enable Channel 5</label>
+                        <input type="range" id="channel5PWM" min="0" max="100" value="50" disabled>
+                        <span id="channel5Value">50%</span>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="channelName6">Channel name 6:</label>
                     <input type="text" id="channelName6">
+                    <div class="channel-controls">
+                        <input type="checkbox" id="channel6Enabled" onchange="toggleSlider(6)">
+                        <label for="channel6Enabled">Enable Channel 6</label>
+                        <input type="range" id="channel6PWM" min="0" max="100" value="50" disabled>
+                        <span id="channel6Value">50%</span>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="channelName7">Channel name 7:</label>
                     <input type="text" id="channelName7">
+                    <div class="channel-controls">
+                        <input type="checkbox" id="channel7Enabled" onchange="toggleSlider(7)">
+                        <label for="channel7Enabled">Enable Channel 7</label>
+                        <input type="range" id="channel7PWM" min="0" max="100" value="50" disabled>
+                        <span id="channel7Value">50%</span>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="channelName8">Channel name 8:</label>
                     <input type="text" id="channelName8">
+                    <div class="channel-controls">
+                        <input type="checkbox" id="channel8Enabled" onchange="toggleSlider(8)">
+                        <label for="channel8Enabled">Enable Channel 8</label>
+                        <input type="range" id="channel8PWM" min="0" max="100" value="50" disabled>
+                        <span id="channel8Value">50%</span>
+                    </div>
                 </div>
             </div>
 
@@ -728,7 +791,86 @@
             const deviceIP = document.getElementById('deviceIP').value;
             return `https://${deviceIP}`;
         }
+
+        async function toggleSlider(channelNum) {
+            const checkbox = document.getElementById(`channel${channelNum}Enabled`);
+            const slider = document.getElementById(`channel${channelNum}PWM`);
+            const statusDiv = document.getElementById('status');
+            
+            try {
+                if (checkbox.checked) {
+                    const response = await fetch(`${getDeviceURL()}/channels/${channelNum}/manual/on`, {
+                        mode: 'cors',
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.status === 'success') {
+                        slider.disabled = false;
+                        slider.value = data.pwm_ratio;
+                        document.getElementById(`channel${channelNum}Value`).textContent = data.pwm_ratio + '%';
+                    } else {
+                        throw new Error(data.message || 'Failed to enable channel');
+                    }
+                } else {
+                    slider.disabled = true;
+                    // Optionally send request to disable channel
+                    await fetch(`${getDeviceURL()}/channels/${channelNum}/manual/off`, {
+                        mode: 'cors',
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                }
+            } catch (error) {
+                statusDiv.textContent = `Error: ${error.message}`;
+                statusDiv.className = 'status error';
+                statusDiv.style.display = 'block';
+                checkbox.checked = !checkbox.checked; // Revert checkbox state
+                slider.disabled = !checkbox.checked;
+            }
+
+            // Add input event listener for slider
+            slider.oninput = function() {
+                document.getElementById(`channel${channelNum}Value`).textContent = this.value + '%';
+            }
+            
+            // Add change event listener for slider (fires when user stops dragging)
+            slider.onchange = function() {
+                updatePWM(channelNum, this.value);
+            }
+        }
+
+        async function updatePWM(channelNum, value) {
+            const statusDiv = document.getElementById('status');
+            try {
+                const response = await fetch(`${getDeviceURL()}/channels/${channelNum}/pwm/${value}`, {
+                    mode: 'cors',
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                if (data.status === 'success') {
+                    document.getElementById(`channel${channelNum}Value`).textContent = value + '%';
+                } else {
+                    throw new Error(data.message || 'Failed to update PWM');
+                }
+            } catch (error) {
+                statusDiv.textContent = `Error: ${error.message}`;
+                statusDiv.className = 'status error';
+                statusDiv.style.display = 'block';
+            }
+        }
     </script>
+
 </body>
 
 </html>
