@@ -7,868 +7,447 @@
     <meta name="theme-color" content="#4a90e2">
     <title>Konfiguracja lampy</title>
     <link rel="manifest" href="manifest.json">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            padding-top: 180px;
-            /* Space for fixed header */
-        }
+        [x-cloak] { display: none !important; }
 
-        .header-panel {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            background-color: white;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            padding: 15px 20px;
-            z-index: 1000;
+        /* Custom scrollbar for better UX */
+        ::-webkit-scrollbar {
+            width: 8px;
         }
-
-        .header-content {
-            max-width: 600px;
-            margin: 0 auto;
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
         }
-
-        .header-lang {
-            display: flex;
-            justify-content: space-between;
-            align-items: left;
-            width: 100%;
-            flex-wrap: nowrap;
-        }
-
-        .main-content {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: inline-block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        input {
-            /*width: 100%;*/
-            padding: 8px;
-            border: 1px solid #ddd;
+        ::-webkit-scrollbar-thumb {
+            background: #4a90e2;
             border-radius: 4px;
         }
-
-        button {
-            background-color: #4a90e2;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            width: 100%;
-        }
-
-        button:hover {
-            background-color: #357abd;
-        }
-
-        #langToggle {
-            background-color: #ffffff;
-            color: rgb(0, 0, 0);
-            padding: 10px 20px;
-            border-bottom: solid 1px #4a90e2;
-            border-radius: 4px;
-            cursor: pointer;
-            right: -20px;
-            width: auto;
-            height: fit-content;
-            transition: all 1s;
-        }
-
-        #langToggle:hover {
-            border: solid 1px #357abd;
-            background-color: #357abd;
-            color: rgb(255, 255, 255);
-            right: 0px;
-            transition: all 1s;
-        }
-
-        .status {
-            margin-top: 15px;
-            padding: 10px;
-            border-radius: 4px;
-            display: none;
-            cursor: pointer;
-        }
-
-        .success {
-            background-color: #d4edda;
-            color: #155724;
-        }
-
-        .error {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-
-        .collapsible {
-            background-color: #f8f9fa;
-            color: #444;
-            cursor: pointer;
-            padding: 18px;
-            width: 100%;
-            border: none;
-            text-align: left;
-            outline: none;
-            font-size: 15px;
-            margin-bottom: 15px;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-        }
-
-        .active,
-        .collapsible:hover {
-            background-color: #eff1f3;
-        }
-
-        .collapsible:after {
-            content: '\002B';
-            color: #777;
-            font-weight: bold;
-            float: right;
-            margin-left: 5px;
-        }
-
-        .active:after {
-            content: "\2212";
-        }
-
-        .channel-content {
-            padding: 0 18px;
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.2s ease-out;
-            background-color: white;
-            border: 1px solid #ddd;
-            border-top: none;
-            border-radius: 0 0 4px 4px;
-            margin-bottom: 15px;
-        }
-
-        /* Schedules sections style */
-        .schedule-group {
-            border: 1px solid #ddd;
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 4px;
-            background-color: #f8f9fa;
-        }
-
-        .days-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .day-checkbox {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .time-group {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .time-input {
-            width: 70px !important;
-        }
-
-        .remove-schedule {
-            background-color: #dc3545;
-            margin-top: 15px;
-        }
-
-        .remove-schedule:hover {
-            background-color: #c82333;
-        }
-
-        .channels-select {
-            min-height: 100px;
-        }
-
-        .channel-controls {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 5px;
-        }
-
-        input[type="range"] {
-            width: 200px;
-        }
-
-        input[type="range"]:disabled {
-            opacity: 0.5;
+        ::-webkit-scrollbar-thumb:hover {
+            background: #357abd;
         }
     </style>
 </head>
 
-<body>
-    <form id="configForm" onsubmit="return false;">
-        <div class="header-panel">
-            <div class="header-content">
-                <div class="header-lang">
-                    <h1>Device Configuration</h1>
-                    <button type="button" onclick="toggleLanguage()" id="langToggle">PL</button>
+<body class="bg-gray-50 min-h-screen" x-data="appData()" x-cloak>
+
+    <!-- Fixed Header -->
+    <header class="fixed top-0 left-0 right-0 bg-white shadow-md z-50">
+        <div class="max-w-4xl mx-auto px-4 py-4">
+            <div class="flex justify-between items-center mb-3">
+                <h1 class="text-2xl font-bold text-gray-800" x-text="t('Device Configuration')"></h1>
+                <button
+                    @click="toggleLanguage()"
+                    class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-semibold"
+                    x-text="currentLang === 'en' ? 'PL' : 'EN'">
+                </button>
+            </div>
+
+            <!-- Tab Navigation -->
+            <nav class="flex space-x-2 border-b border-gray-200">
+                <button
+                    @click="activeTab = 'control'"
+                    :class="activeTab === 'control' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-600 hover:text-blue-500'"
+                    class="px-4 py-2 font-medium transition-colors"
+                    x-text="t('Control')">
+                </button>
+                <button
+                    @click="activeTab = 'schedules'"
+                    :class="activeTab === 'schedules' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-600 hover:text-blue-500'"
+                    class="px-4 py-2 font-medium transition-colors"
+                    x-text="t('Schedules')">
+                </button>
+                <button
+                    @click="activeTab = 'settings'"
+                    :class="activeTab === 'settings' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-600 hover:text-blue-500'"
+                    class="px-4 py-2 font-medium transition-colors"
+                    x-text="t('Settings')">
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content (with padding for fixed header) -->
+    <main class="pt-32 pb-8 max-w-4xl mx-auto px-4">
+
+        <!-- Status Message -->
+        <div
+            x-show="status.show"
+            @click="status.show = false"
+            :class="status.type === 'success' ? 'bg-green-100 text-green-800 border-green-300' : 'bg-red-100 text-red-800 border-red-300'"
+            class="mb-4 p-4 rounded-lg border cursor-pointer transition-opacity"
+            x-transition
+            x-text="status.message">
+        </div>
+
+        <!-- TAB 1: CONTROL -->
+        <div x-show="activeTab === 'control'" x-transition class="space-y-6">
+
+            <!-- Connection Status Card -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4" x-text="t('Connection Status')"></h2>
+
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <span class="text-gray-600" x-text="t('Device IP:')"></span>
+                        <span class="font-mono font-semibold ml-2" x-text="config.deviceIP || 'Not set'"></span>
+                    </div>
+                    <button
+                        @click="checkConnection()"
+                        class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                        x-text="t('Check connection')">
+                    </button>
                 </div>
-                <button type="button" onclick="submitForm()">Save</button>
-                <div id="status" class="status"></div>
+
+                <div class="flex items-center space-x-2">
+                    <div
+                        :class="connectionStatus === 'connected' ? 'bg-green-500' : connectionStatus === 'disconnected' ? 'bg-red-500' : 'bg-gray-400'"
+                        class="w-3 h-3 rounded-full">
+                    </div>
+                    <span class="text-sm text-gray-600" x-text="connectionStatus === 'connected' ? t('Connected') : connectionStatus === 'disconnected' ? t('Disconnected') : t('Unknown')"></span>
+                </div>
+            </div>
+
+            <!-- Channel Controls Card -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4" x-text="t('Channel Controls')"></h2>
+
+                <div class="space-y-4">
+                    <template x-for="channel in 8" :key="channel">
+                        <div class="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex-1">
+                                    <h3 class="font-semibold text-gray-800" x-text="getChannelName(channel)"></h3>
+                                    <p class="text-sm text-gray-500" x-text="t('Channel') + ' ' + channel"></p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        class="sr-only peer"
+                                        :checked="channels[channel - 1].enabled"
+                                        @change="toggleChannel(channel)">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
+
+                            <div class="flex items-center space-x-4" x-show="channels[channel - 1].enabled">
+                                <input
+                                    type="range"
+                                    min="0"
+                                    max="100"
+                                    :value="channels[channel - 1].pwm"
+                                    @input="channels[channel - 1].pwm = $event.target.value"
+                                    @change="updatePWM(channel, $event.target.value)"
+                                    class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                                <span class="text-lg font-semibold text-gray-800 w-16 text-right" x-text="channels[channel - 1].pwm + '%'"></span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <button
+                    @click="disableAllChannels()"
+                    class="mt-6 w-full px-4 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-semibold"
+                    x-text="t('Disable All Channels')">
+                </button>
             </div>
         </div>
 
-        <div class="main-content">
-            <div class="form-group">
-                <label for="deviceIP">Device IP:</label>
-                <input type="text" id="deviceIP" required pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$">
-                <button type="button" onclick="checkDeviceConnection()" id="checkConnection" style="width: auto;"
-                    data-translate="Check connection">Check connection</button>
-            </div>
-            <div class="form-group">
-                <label for="time">Synchronize with your local time?:</label>
-                <input type="checkbox" id="time" value="true">
-            </div>
-            <div class="form-group">
-                <label for="wifiName">WiFi Name:</label>
-                <input type="text" id="wifiName" required>
-            </div>
-            <div class="form-group">
-                <label for="wifiPassword">WiFi Password:</label>
-                <input type="password" id="wifiPassword" required>
-            </div>
+        <!-- TAB 2: SCHEDULES -->
+        <div x-show="activeTab === 'schedules'" x-transition class="space-y-6">
 
-            <button type="button" class="collapsible">Channel Settings</button>
-            <div class="channel-content">
-                <div class="form-group">
-                    <label for="channelName1">Channel name 1:</label>
-                    <input type="text" id="channelName1">
-                    <div class="channel-controls">
-                        <input type="checkbox" id="channel1Enabled" onchange="toggleSlider(1)">
-                        <label for="channel1Enabled">Enable Channel 1</label>
-                        <input type="range" id="channel1PWM" min="0" max="100" value="50" disabled>
-                        <span id="channel1Value">50%</span>
-                    </div>
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800" x-text="t('Schedule Management')"></h2>
+                    <button
+                        @click="addSchedule()"
+                        class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        <span x-text="t('Add Schedule')"></span>
+                    </button>
                 </div>
-                <div class="form-group">
-                    <label for="channelName2">Channel name 2:</label>
-                    <input type="text" id="channelName2">
-                    <div class="channel-controls">
-                        <input type="checkbox" id="channel2Enabled" onchange="toggleSlider(2)">
-                        <label for="channel2Enabled">Enable Channel 2</label>
-                        <input type="range" id="channel2PWM" min="0" max="100" value="50" disabled>
-                        <span id="channel2Value">50%</span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="channelName3">Channel name 3:</label>
-                    <input type="text" id="channelName3">
-                    <div class="channel-controls">
-                        <input type="checkbox" id="channel3Enabled" onchange="toggleSlider(3)">
-                        <label for="channel3Enabled">Enable Channel 3</label>
-                        <input type="range" id="channel3PWM" min="0" max="100" value="50" disabled>
-                        <span id="channel3Value">50%</span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="channelName4">Channel name 4:</label>
-                    <input type="text" id="channelName4">
-                    <div class="channel-controls">
-                        <input type="checkbox" id="channel4Enabled" onchange="toggleSlider(4)">
-                        <label for="channel4Enabled">Enable Channel 4</label>
-                        <input type="range" id="channel4PWM" min="0" max="100" value="50" disabled>
-                        <span id="channel4Value">50%</span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="channelName5">Channel name 5:</label>
-                    <input type="text" id="channelName5">
-                    <div class="channel-controls">
-                        <input type="checkbox" id="channel5Enabled" onchange="toggleSlider(5)">
-                        <label for="channel5Enabled">Enable Channel 5</label>
-                        <input type="range" id="channel5PWM" min="0" max="100" value="50" disabled>
-                        <span id="channel5Value">50%</span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="channelName6">Channel name 6:</label>
-                    <input type="text" id="channelName6">
-                    <div class="channel-controls">
-                        <input type="checkbox" id="channel6Enabled" onchange="toggleSlider(6)">
-                        <label for="channel6Enabled">Enable Channel 6</label>
-                        <input type="range" id="channel6PWM" min="0" max="100" value="50" disabled>
-                        <span id="channel6Value">50%</span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="channelName7">Channel name 7:</label>
-                    <input type="text" id="channelName7">
-                    <div class="channel-controls">
-                        <input type="checkbox" id="channel7Enabled" onchange="toggleSlider(7)">
-                        <label for="channel7Enabled">Enable Channel 7</label>
-                        <input type="range" id="channel7PWM" min="0" max="100" value="50" disabled>
-                        <span id="channel7Value">50%</span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="channelName8">Channel name 8:</label>
-                    <input type="text" id="channelName8">
-                    <div class="channel-controls">
-                        <input type="checkbox" id="channel8Enabled" onchange="toggleSlider(8)">
-                        <label for="channel8Enabled">Enable Channel 8</label>
-                        <input type="range" id="channel8PWM" min="0" max="100" value="50" disabled>
-                        <span id="channel8Value">50%</span>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Schedules settings section -->
-            <button type="button" class="collapsible">Schedule Settings</button>
-            <div class="channel-content">
-                <button type="button" id="addSchedule" class="button">Add Schedule</button>
-                <div id="scheduleContainer"></div>
-            </div>
+                <div class="space-y-4">
+                    <template x-for="(schedule, index) in schedules" :key="schedule.id">
+                        <div class="border border-gray-200 rounded-lg p-6 hover:border-blue-300 transition-colors">
 
+                            <!-- Schedule Header -->
+                            <div class="flex justify-between items-start mb-4">
+                                <h3 class="text-lg font-semibold text-gray-800" x-text="t('Schedule') + ' #' + (index + 1)"></h3>
+                                <button
+                                    @click="removeSchedule(schedule.id)"
+                                    class="text-red-500 hover:text-red-700 transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <!-- Days Selection -->
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2" x-text="t('Days:')"></label>
+                                <div class="flex flex-wrap gap-2">
+                                    <template x-for="(day, dayIndex) in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']" :key="dayIndex">
+                                        <label class="flex items-center space-x-2 bg-gray-50 px-3 py-2 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors">
+                                            <input
+                                                type="checkbox"
+                                                :checked="schedule.days.includes(dayIndex + 1)"
+                                                @change="toggleScheduleDay(schedule.id, dayIndex + 1)"
+                                                class="rounded text-blue-600 focus:ring-blue-500">
+                                            <span class="text-sm" x-text="t(day)"></span>
+                                        </label>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <!-- Time Settings -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2" x-text="t('Start Time:')"></label>
+                                    <div class="flex items-center space-x-2">
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            max="23"
+                                            x-model="schedule.startHour"
+                                            @change="saveToLocalStorage()"
+                                            class="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                        <span class="text-gray-600">:</span>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            max="59"
+                                            x-model="schedule.startMinute"
+                                            @change="saveToLocalStorage()"
+                                            class="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2" x-text="t('End Time:')"></label>
+                                    <div class="flex items-center space-x-2">
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            max="23"
+                                            x-model="schedule.endHour"
+                                            @change="saveToLocalStorage()"
+                                            class="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                        <span class="text-gray-600">:</span>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            max="59"
+                                            x-model="schedule.endMinute"
+                                            @change="saveToLocalStorage()"
+                                            class="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Duty Cycle Settings -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2" x-text="t('Start Duty (%):')"></label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        max="100"
+                                        x-model="schedule.startDuty"
+                                        @change="saveToLocalStorage()"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2" x-text="t('Max Duty (%):')"></label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        max="100"
+                                        x-model="schedule.maxDuty"
+                                        @change="saveToLocalStorage()"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2" x-text="t('End Duty (%):')"></label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        max="100"
+                                        x-model="schedule.endDuty"
+                                        @change="saveToLocalStorage()"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                </div>
+                            </div>
+
+                            <!-- Interval Settings -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2" x-text="t('Start Interval (minutes):')"></label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        x-model="schedule.startInterval"
+                                        @change="saveToLocalStorage()"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2" x-text="t('End Interval (minutes):')"></label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        x-model="schedule.endInterval"
+                                        @change="saveToLocalStorage()"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                </div>
+                            </div>
+
+                            <!-- Channel Selection -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" x-text="t('Channels:')"></label>
+                                <div class="flex flex-wrap gap-2">
+                                    <template x-for="ch in 8" :key="ch">
+                                        <label class="flex items-center space-x-2 bg-gray-50 px-3 py-2 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors">
+                                            <input
+                                                type="checkbox"
+                                                :checked="schedule.channels.includes(ch)"
+                                                @change="toggleScheduleChannel(schedule.id, ch)"
+                                                class="rounded text-blue-600 focus:ring-blue-500">
+                                            <span class="text-sm" x-text="getChannelName(ch)"></span>
+                                        </label>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Empty State -->
+                    <div x-show="schedules.length === 0" class="text-center py-12 text-gray-500">
+                        <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        <p class="text-lg" x-text="t('No schedules yet. Click Add Schedule to create one.')"></p>
+                    </div>
+                </div>
+
+                <!-- Save Button -->
+                <button
+                    @click="saveConfiguration()"
+                    class="mt-6 w-full px-4 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-semibold"
+                    x-text="t('Save Configuration to Device')">
+                </button>
+            </div>
         </div>
-    </form>
+
+        <!-- TAB 3: SETTINGS -->
+        <div x-show="activeTab === 'settings'" x-transition class="space-y-6">
+
+            <!-- Device Settings Card -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4" x-text="t('Device Settings')"></h2>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2" x-text="t('Device IP:')"></label>
+                        <input
+                            type="text"
+                            x-model="config.deviceIP"
+                            @change="saveToLocalStorage()"
+                            pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$"
+                            placeholder="192.168.1.100"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+
+                    <div class="flex items-center space-x-3 bg-gray-50 p-4 rounded-lg">
+                        <input
+                            type="checkbox"
+                            id="syncTime"
+                            x-model="config.time"
+                            @change="saveToLocalStorage()"
+                            class="w-5 h-5 text-blue-600 rounded focus:ring-blue-500">
+                        <label for="syncTime" class="text-sm font-medium text-gray-700" x-text="t('Synchronize with your local time?')"></label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WiFi Settings Card -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4" x-text="t('WiFi Configuration')"></h2>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2" x-text="t('WiFi Name:')"></label>
+                        <input
+                            type="text"
+                            x-model="config.wifiName"
+                            @change="saveToLocalStorage()"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2" x-text="t('WiFi Password:')"></label>
+                        <input
+                            type="password"
+                            x-model="config.wifiPassword"
+                            @change="saveToLocalStorage()"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Channel Names Card -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4" x-text="t('Channel Names')"></h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <template x-for="ch in 8" :key="ch">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2" x-text="t('Channel') + ' ' + ch + ':'"></label>
+                            <input
+                                type="text"
+                                x-model="config.channelNames[ch - 1]"
+                                @change="saveToLocalStorage()"
+                                :placeholder="t('Channel') + ' ' + ch"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Save Button -->
+            <button
+                @click="saveConfiguration()"
+                class="w-full px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-semibold"
+                x-text="t('Save Configuration to Device')">
+            </button>
+        </div>
+    </main>
 
     <script>
-        // Register service worker
+        // Register service worker for PWA functionality
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('service-worker.js')
                 .then(registration => console.log('ServiceWorker registered'))
                 .catch(error => console.log('ServiceWorker registration failed:', error));
         }
+    </script>
+    <!-- Load app.js module first, then load Alpine.js -->
+    <script type="module">
+        // First, import the app module to ensure appData is defined
+        import('/js/app.js').then(() => {
+            console.log('App module loaded, now loading Alpine.js...');
 
-        // Collapsible functionality
-        const coll = document.getElementsByClassName("collapsible");
-        for (let i = 0; i < coll.length; i++) {
-            coll[i].addEventListener("click", function () {
-                this.classList.toggle("active");
-                const content = this.nextElementSibling;
-                if (content.style.maxHeight) {
-                    content.style.maxHeight = null;
-                } else {
-                    content.style.maxHeight = content.scrollHeight + "px";
-                }
-            });
-        }
-
-        // Current language
-        let currentLang = 'en';
-
-        // Schedule class definition
-        class Schedule {
-            constructor() {
-                this.id = Date.now(); // Unique identifier
-                this.days = []; // Will store numbers 1-7 instead of day names (1-Monday, 2-Tuesday, etc.)
-                this.startHour = 0;
-                this.startMinute = 0;
-                this.endHour = 0;
-                this.endMinute = 0;
-                this.startDuty = 0;
-                this.maxDuty = 0;
-                this.endDuty = 0;
-                this.startInterval = 0;
-                this.endInterval = 0;
-                this.channels = [];
-            }
-        }
-
-        // Global schedules array
-        let schedules = [];
-
-        // Function to create schedule HTML
-        function createScheduleElement(schedule) {
-            const div = document.createElement('div');
-            div.className = 'schedule-group';
-            div.dataset.scheduleId = schedule.id;
-
-            const daysHtml = `
-                <div class="form-group">
-                    <label>Days:</label>
-                    <div class="days-group">
-                        ${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-                    .map((day, index) => `
-                                <div class="day-checkbox">
-                                    <input type="checkbox" id="day${schedule.id}_${index}" 
-                                        ${schedule.days.includes(index + 1) ? 'checked' : ''}>
-                                    <label for="day${schedule.id}_${index}">${day}</label>
-                                </div>
-                            `).join('')}
-                    </div>
-                </div>`;
-
-            const timeHtml = `
-                <div class="form-group">
-                    <label>Start Time:</label>
-                    <div class="time-group">
-                        <input type="number" class="time-input" min="0" max="23" value="${schedule.startHour}" placeholder="Hour">
-                        <span>:</span>
-                        <input type="number" class="time-input" min="0" max="59" value="${schedule.startMinute}" placeholder="Min">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>End Time:</label>
-                    <div class="time-group">
-                        <input type="number" class="time-input" min="0" max="23" value="${schedule.endHour}" placeholder="Hour">
-                        <span>:</span>
-                        <input type="number" class="time-input" min="0" max="59" value="${schedule.endMinute}" placeholder="Min">
-                    </div>
-                </div>`;
-
-            const dutyHtml = `
-                <div class="form-group">
-                    <label>Start Duty (%):</label>
-                    <input type="number" min="0" max="100" value="${schedule.startDuty}">
-                </div>
-                <div class="form-group">
-                    <label>Max Duty (%):</label>
-                    <input type="number" min="0" max="100" value="${schedule.maxDuty}">
-                </div>
-                <div class="form-group">
-                    <label>End Duty (%):</label>
-                    <input type="number" min="0" max="100" value="${schedule.endDuty}">
-                </div>`;
-
-            const intervalHtml = `
-                <div class="form-group">
-                    <label>Start Interval (minutes):</label>
-                    <input type="number" min="0" value="${schedule.startInterval}">
-                </div>
-                <div class="form-group">
-                    <label>End Interval (minutes):</label>
-                    <input type="number" min="0" value="${schedule.endInterval}">
-                </div>`;
-
-            const channelsHtml = `
-                <div class="form-group">
-                    <label>Channels:</label>
-                    <select multiple class="channels-select">
-                        ${Array.from({ length: 8 }, (_, i) => {
-                const channelName = document.getElementById(`channelName${i + 1}`).value || `Channel ${i + 1}`;
-                return `<option value="${i + 1}" ${schedule.channels.includes(i + 1) ? 'selected' : ''}>
-                                ${channelName}
-                            </option>`;
-            }).join('')}
-                    </select>
-                </div>`;
-
-            div.innerHTML = `
-                ${daysHtml}
-                ${timeHtml}
-                ${dutyHtml}
-                ${intervalHtml}
-                ${channelsHtml}
-                <button type="button" class="button remove-schedule">Remove Schedule</button>
-            `;
-
-            // Add event listener for remove button
-            div.querySelector('.remove-schedule').addEventListener('click', () => {
-                schedules = schedules.filter(s => s.id !== schedule.id);
-                div.remove();
-                saveToLocalStorage();
-            });
-
-            // Add event listeners for all inputs to update schedule object
-            div.addEventListener('change', (e) => {
-                const scheduleIndex = schedules.findIndex(s => s.id === schedule.id);
-                if (scheduleIndex === -1) return;
-
-                // Update days
-                if (e.target.type === 'checkbox') {
-                    schedules[scheduleIndex].days = Array.from(div.querySelectorAll('input[type="checkbox"]'))
-                        .map((cb, i) => cb.checked ? i + 1 : null)
-                        .filter(Boolean);
-                }
-
-                // Update times
-                const timeInputs = div.querySelectorAll('.time-input');
-                schedules[scheduleIndex].startHour = parseInt(timeInputs[0].value) || 0;
-                schedules[scheduleIndex].startMinute = parseInt(timeInputs[1].value) || 0;
-                schedules[scheduleIndex].endHour = parseInt(timeInputs[2].value) || 0;
-                schedules[scheduleIndex].endMinute = parseInt(timeInputs[3].value) || 0;
-
-                // Update duty cycles
-                const dutyInputs = div.querySelectorAll('input[type="number"]');
-                schedules[scheduleIndex].startDuty = parseInt(dutyInputs[4].value) || 0;
-                schedules[scheduleIndex].maxDuty = parseInt(dutyInputs[5].value) || 0;
-                schedules[scheduleIndex].endDuty = parseInt(dutyInputs[6].value) || 0;
-
-                // Update intervals
-                schedules[scheduleIndex].startInterval = parseInt(dutyInputs[7].value) || 0;
-                schedules[scheduleIndex].endInterval = parseInt(dutyInputs[8].value) || 0;
-
-                // Update channels
-                const channelsSelect = div.querySelector('.channels-select');
-                schedules[scheduleIndex].channels = Array.from(channelsSelect.selectedOptions)
-                    .map(option => parseInt(option.value));
-
-                saveToLocalStorage();
-            });
-
-            return div;
-        }
-
-        // Add new schedule
-        document.getElementById('addSchedule').addEventListener('click', () => {
-            const schedule = new Schedule();
-            schedules.push(schedule);
-            document.getElementById('scheduleContainer').appendChild(createScheduleElement(schedule));
-            saveToLocalStorage();
-        });
-
-        // Modified saveToLocalStorage function
-        function saveToLocalStorage() {
-            const formData = {
-                deviceIP: document.getElementById('deviceIP').value,
-                time: document.getElementById('time').checked,
-                wifiName: document.getElementById('wifiName').value,
-                wifiPassword: document.getElementById('wifiPassword').value,
-                schedules: schedules
+            // Now dynamically load Alpine.js
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js';
+            script.onload = () => {
+                console.log('Alpine.js loaded and started');
             };
-
-            // Add channel names
-            for (let i = 1; i <= 8; i++) {
-                const channelId = `channelName${i}`;
-                formData[channelId] = document.getElementById(channelId).value;
-            }
-
-            localStorage.setItem('deviceConfig', JSON.stringify(formData));
-        }
-
-        // Load saved data from localStorage
-        document.addEventListener('DOMContentLoaded', () => {
-            const savedData = JSON.parse(localStorage.getItem('deviceConfig') || '{}');
-
-            if (savedData.deviceIP) document.getElementById('deviceIP').value = savedData.deviceIP;
-            document.getElementById('time').checked = savedData.time;
-            if (savedData.wifiName) document.getElementById('wifiName').value = savedData.wifiName;
-            if (savedData.wifiPassword) document.getElementById('wifiPassword').value = savedData.wifiPassword;
-
-            // Load channel names
-            for (let i = 1; i <= 8; i++) {
-                const channelId = `channelName${i}`;
-                if (savedData[channelId]) {
-                    document.getElementById(channelId).value = savedData[channelId];
-                }
-            }
-
-            // Load schedules
-            if (savedData.schedules) {
-                schedules = savedData.schedules;
-                schedules.forEach(schedule => {
-                    document.getElementById('scheduleContainer').appendChild(createScheduleElement(schedule));
-                });
-            }
-
-            // Translate the page
-            translateOnLoad();
+            document.head.appendChild(script);
+        }).catch(error => {
+            console.error('Failed to load app.js:', error);
         });
-
-        // Add click handler for status messages
-        document.getElementById('status').addEventListener('click', function () {
-            this.style.display = 'none';
-        });
-
-        // Handle form submission
-        async function submitForm() {
-
-            const formData = {
-                deviceIP: document.getElementById('deviceIP').value,
-                time: document.getElementById('time').checked,
-                wifiName: document.getElementById('wifiName').value,
-                wifiPassword: document.getElementById('wifiPassword').value,
-                schedules: schedules
-            };
-
-            // Add channel names
-            for (let i = 1; i <= 8; i++) {
-                const channelId = `channelName${i}`;
-                formData[channelId] = document.getElementById(channelId).value;
-            }
-
-            formDataAsString = JSON.stringify(formData);
-            console.log(`Dane: ${formDataAsString}`);
-
-            // Save to localStorage
-            localStorage.setItem('deviceConfig', formDataAsString);
-
-            const statusDiv = document.getElementById('status');
-
-            // Get timezone offset in minutes
-            const timezoneOffset = new Date().getTimezoneOffset();
-            // Note: getTimezoneOffset() returns the offset in minutes, but reversed
-            // For example: for UTC+2 it returns -120
-            // So we need to negate it to get the correct offset
-            const tzOffsetForDevice = -timezoneOffset;
-
-            dataToBeSent = JSON.stringify({
-                time: document.getElementById('time').checked ?
-                    parseInt(Date.now().toString().substr(0, 10)) : 0,
-                timezone_offset: tzOffsetForDevice,
-                wifiName: document.getElementById('wifiName').value,
-                wifiPassword: document.getElementById('wifiPassword').value,
-                schedules: schedules
-            });
-            try {
-                const response = await fetch(`${getDeviceURL()}/store`, {
-                    mode: 'cors',
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Content-Length': dataToBeSent.length,
-                    },
-                    body: dataToBeSent
-                });
-
-                if (response.ok) {
-                    statusDiv.textContent = translations[currentLang]['Configuration saved successfully!'];
-                    statusDiv.className = 'status success';
-                } else {
-                    throw new Error('Failed to save configuration');
-                }
-            } catch (error) {
-                statusDiv.textContent = translations[currentLang]['Error saving configuration. Data saved locally.'];
-                statusDiv.className = 'status error';
-            }
-            statusDiv.style.display = 'block';
-        };
-
-        async function checkDeviceConnection() {
-            const deviceIP = document.getElementById('deviceIP').value;
-            const statusDiv = document.getElementById('status');
-
-            try {
-                const response = await fetch(`${getDeviceURL()}/ping`, {
-                    signal: AbortSignal.timeout(5000), // 1 second timeout
-                    mode: 'cors',
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                });
-
-                const data = await response.json();
-                console.log(data);
-                if (data && data.message) {
-                    console.log(data.message);
-                }
-                if (response.ok && data.message === 'pong') {
-                    statusDiv.textContent = translations[currentLang]['Connected successfully'];
-                    statusDiv.className = 'status success';
-                } else {
-                    throw new Error('Invalid response');
-                }
-            } catch (error) {
-                statusDiv.textContent = translations[currentLang]['Connection failed'];
-                statusDiv.className = 'status error';
-            }
-
-            statusDiv.style.display = 'block';
-        };
-
-        /* **************************************************** *
-         * Translations                                         *
-         *                                                      *
-         * The translations object contains translations for    *
-         * different languages.                                 *
-         *                                                      *
-         ****************************************************** */
-        const translations = {
-            en: {
-                'Device Configuration': 'Device Configuration',
-                'Save': 'Save',
-                'Device IP:': 'Device IP:',
-                'Synchronize with your local time?:': 'Synchronize with your local time?:',
-                'WiFi Name:': 'WiFi Name:',
-                'WiFi Password:': 'WiFi Password:',
-                'Channel Settings': 'Channel Settings',
-                'Channel name': 'Channel name',
-                'Schedule Settings': 'Schedule Settings',
-                'Add Schedule': 'Add Schedule',
-                'Days:': 'Days:',
-                'Start Time:': 'Start Time:',
-                'End Time:': 'End Time:',
-                'Start Duty (%)': 'Start Duty (%)',
-                'Max Duty (%)': 'Max Duty (%)',
-                'End Duty (%)': 'End Duty (%)',
-                'Start Interval (minutes):': 'Start Interval (minutes):',
-                'End Interval (minutes):': 'End Interval (minutes):',
-                'Channels:': 'Channels:',
-                'Remove Schedule': 'Remove Schedule',
-                'Configuration saved successfully!': 'Configuration saved successfully!',
-                'Error saving configuration. Data saved locally.': 'Error sending configuration to the device. Data saved locally.',
-                'Check connection': 'Check connection',
-                'Connected successfully': 'Connected successfully',
-                'Connection failed': 'Connection failed'
-            },
-            pl: {
-                'Device Configuration': 'Konfiguracja urządzenia',
-                'Save': 'Zapisz',
-                'Device IP:': 'IP urządzenia:',
-                'Synchronize with your local time?:': 'Synchronizować z czasem lokalnym?:',
-                'WiFi Name:': 'Nazwa WiFi:',
-                'WiFi Password:': 'Hasło WiFi:',
-                'Channel Settings': 'Ustawienia kanałów',
-                'Channel name': 'Nazwa kanału',
-                'Schedule Settings': 'Ustawienia harmonogramu',
-                'Add Schedule': 'Dodaj harmonogram',
-                'Days:': 'Dni:',
-                'Start Time:': 'Czas rozpoczęcia:',
-                'End Time:': 'Czas zakończenia:',
-                'Start Duty (%)': 'Początkowe wypełnienie (%)',
-                'Max Duty (%)': 'Maksymalne wypełnienie (%)',
-                'End Duty (%)': 'Końcowe wypełnienie (%)',
-                'Start Interval (minutes):': 'Początkowy interwał (minuty):',
-                'End Interval (minutes):': 'Końcowy interwał (minuty):',
-                'Channels:': 'Kanały:',
-                'Remove Schedule': 'Usuń harmonogram',
-                'Configuration saved successfully!': 'Konfiguracja została zapisana pomyślnie!',
-                'Error saving configuration. Data saved locally.': 'Błąd wysyłania konfiguracji. Dane zapisano lokalnie.',
-                'Check connection': 'Sprawdź połączenie',
-                'Connected successfully': 'Połączono pomyślnie',
-                'Connection failed': 'Połączenie nieudane'
-            }
-        };
-
-
-
-        // Function to toggle language
-        function toggleLanguage() {
-            currentLang = currentLang === 'en' ? 'pl' : 'en';
-            document.getElementById('langToggle').textContent = currentLang === 'en' ? 'PL' : 'EN';
-            translatePage();
-            // Save language preference
-            localStorage.setItem('language', currentLang);
-        }
-
-        // Function to translate the page
-        function translatePage() {
-            // Translate all elements with data-translate attribute
-            document.querySelectorAll('[data-translate]').forEach(element => {
-                const key = element.getAttribute('data-translate');
-                if (translations[currentLang][key]) {
-                    element.textContent = translations[currentLang][key];
-                }
-            });
-        }
-
-        // Add data-translate attributes to elements on page load
-        translateOnLoad = () => {
-            // Load saved language preference
-            currentLang = localStorage.getItem('language') || 'en';
-            document.getElementById('langToggle').textContent = currentLang === 'en' ? 'PL' : 'EN';
-
-            // Add data-translate attributes to all labels and headings
-            document.querySelectorAll('label, h1, button').forEach(element => {
-                const text = element.textContent.trim();
-                element.setAttribute('data-translate', text);
-            });
-
-            translatePage();
-        };
-
-        function getDeviceURL() {
-            const deviceIP = document.getElementById('deviceIP').value;
-            return `https://${deviceIP}`;
-        }
-
-        async function toggleSlider(channelNum) {
-            const checkbox = document.getElementById(`channel${channelNum}Enabled`);
-            const slider = document.getElementById(`channel${channelNum}PWM`);
-            const statusDiv = document.getElementById('status');
-            
-            try {
-                if (checkbox.checked) {
-                    const response = await fetch(`${getDeviceURL()}/channels/${channelNum}/manual/on`, {
-                        mode: 'cors',
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    });
-                    
-                    const data = await response.json();
-                    
-                    if (data.status === 'success') {
-                        slider.disabled = false;
-                        slider.value = data.pwm_ratio;
-                        document.getElementById(`channel${channelNum}Value`).textContent = data.pwm_ratio + '%';
-                    } else {
-                        throw new Error(data.message || 'Failed to enable channel');
-                    }
-                } else {
-                    slider.disabled = true;
-                    // Optionally send request to disable channel
-                    await fetch(`${getDeviceURL()}/channels/${channelNum}/manual/off`, {
-                        mode: 'cors',
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    });
-                }
-            } catch (error) {
-                statusDiv.textContent = `Error: ${error.message}`;
-                statusDiv.className = 'status error';
-                statusDiv.style.display = 'block';
-                checkbox.checked = !checkbox.checked; // Revert checkbox state
-                slider.disabled = !checkbox.checked;
-            }
-
-            // Add input event listener for slider
-            slider.oninput = function() {
-                document.getElementById(`channel${channelNum}Value`).textContent = this.value + '%';
-            }
-            
-            // Add change event listener for slider (fires when user stops dragging)
-            slider.onchange = function() {
-                updatePWM(channelNum, this.value);
-            }
-        }
-
-        async function updatePWM(channelNum, value) {
-            const statusDiv = document.getElementById('status');
-            try {
-                const response = await fetch(`${getDeviceURL()}/channels/${channelNum}/pwm/${value}`, {
-                    mode: 'cors',
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                const data = await response.json();
-                if (data.status === 'success') {
-                    document.getElementById(`channel${channelNum}Value`).textContent = value + '%';
-                } else {
-                    throw new Error(data.message || 'Failed to update PWM');
-                }
-            } catch (error) {
-                statusDiv.textContent = `Error: ${error.message}`;
-                statusDiv.className = 'status error';
-                statusDiv.style.display = 'block';
-            }
-        }
     </script>
 
 </body>
