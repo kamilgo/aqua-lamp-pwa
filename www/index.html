@@ -132,16 +132,56 @@
                                 </label>
                             </div>
 
-                            <div class="flex items-center space-x-4" x-show="channels[channel - 1].enabled">
+                            <!-- Controls: decrement button, slider, increment button, numeric input -->
+                            <div class="flex items-center space-x-3" x-show="channels[channel - 1].enabled">
+                                <!-- Decrement: immediate change + hold-to-repeat; send to API on release -->
+                                <button
+                                    type="button"
+                                    @mousedown.prevent="(function(){ const ch = channels[channel-1]; ch.pwm = Math.max(0, Number(ch.pwm) - 1); ch._hold = { timeout: setTimeout(()=>{ ch._hold.interval = setInterval(()=>{ ch.pwm = Math.max(0, Number(ch.pwm) - 1) }, 80) }, 350) }; })()"
+                                    @touchstart.prevent="(function(){ const ch = channels[channel-1]; ch.pwm = Math.max(0, Number(ch.pwm) - 1); ch._hold = { timeout: setTimeout(()=>{ ch._hold.interval = setInterval(()=>{ ch.pwm = Math.max(0, Number(ch.pwm) - 1) }, 80) }, 350) }; })()"
+                                    @mouseup="(function(){ const ch = channels[channel-1]; if(ch._hold){ if(ch._hold.timeout) clearTimeout(ch._hold.timeout); if(ch._hold.interval) clearInterval(ch._hold.interval); ch._hold = null; } updatePWM(channel, ch.pwm); })()"
+                                    @mouseleave="(function(){ const ch = channels[channel-1]; if(ch._hold){ if(ch._hold.timeout) clearTimeout(ch._hold.timeout); if(ch._hold.interval) clearInterval(ch._hold.interval); ch._hold = null; updatePWM(channel, ch.pwm); } })()"
+                                    @touchend="(function(){ const ch = channels[channel-1]; if(ch._hold){ if(ch._hold.timeout) clearTimeout(ch._hold.timeout); if(ch._hold.interval) clearInterval(ch._hold.interval); ch._hold = null; } updatePWM(channel, ch.pwm); })()"
+                                    @touchcancel="(function(){ const ch = channels[channel-1]; if(ch._hold){ if(ch._hold.timeout) clearTimeout(ch._hold.timeout); if(ch._hold.interval) clearInterval(ch._hold.interval); ch._hold = null; } updatePWM(channel, ch.pwm); })()"
+                                    class="px-3 py-1 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200">
+                                    -
+                                </button>
+
+                                <!-- Slider -->
                                 <input
                                     type="range"
                                     min="0"
                                     max="100"
                                     :value="channels[channel - 1].pwm"
-                                    @input="channels[channel - 1].pwm = $event.target.value"
-                                    @change="updatePWM(channel, $event.target.value)"
+                                    @input="channels[channel - 1].pwm = $event.target.valueAsNumber"
+                                    @change="updatePWM(channel, channels[channel - 1].pwm);"
                                     class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
-                                <span class="text-lg font-semibold text-gray-800 w-16 text-right" x-text="channels[channel - 1].pwm + '%'"></span>
+
+                                <!-- Increment: immediate change + hold-to-repeat; send to API on release -->
+                                <button
+                                    type="button"
+                                    @mousedown.prevent="(function(){ const ch = channels[channel-1]; ch.pwm = Math.min(100, Number(ch.pwm) + 1); ch._hold = { timeout: setTimeout(()=>{ ch._hold.interval = setInterval(()=>{ ch.pwm = Math.min(100, Number(ch.pwm) + 1) }, 80) }, 350) }; })()"
+                                    @touchstart.prevent="(function(){ const ch = channels[channel-1]; ch.pwm = Math.min(100, Number(ch.pwm) + 1); ch._hold = { timeout: setTimeout(()=>{ ch._hold.interval = setInterval(()=>{ ch.pwm = Math.min(100, Number(ch.pwm) + 1) }, 80) }, 350) }; })()"
+                                    @mouseup="(function(){ const ch = channels[channel-1]; if(ch._hold){ if(ch._hold.timeout) clearTimeout(ch._hold.timeout); if(ch._hold.interval) clearInterval(ch._hold.interval); ch._hold = null; } updatePWM(channel, ch.pwm); })()"
+                                    @mouseleave="(function(){ const ch = channels[channel-1]; if(ch._hold){ if(ch._hold.timeout) clearTimeout(ch._hold.timeout); if(ch._hold.interval) clearInterval(ch._hold.interval); ch._hold = null; updatePWM(channel, ch.pwm); } })()"
+                                    @touchend="(function(){ const ch = channels[channel-1]; if(ch._hold){ if(ch._hold.timeout) clearTimeout(ch._hold.timeout); if(ch._hold.interval) clearInterval(ch._hold.interval); ch._hold = null; } updatePWM(channel, ch.pwm) })()"
+                                    @touchcancel="(function(){ const ch = channels[channel-1]; if(ch._hold){ if(ch._hold.timeout) clearTimeout(ch._hold.timeout); if(ch._hold.interval) clearInterval(ch._hold.interval); ch._hold = null; } updatePWM(channel, ch.pwm); })()"
+                                    class="px-3 py-1 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200">
+                                    +
+                                </button>
+
+                                <!-- Manual numeric edit (single editable field with '%' suffix) -->
+                                <div class="relative w-20">
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        max="100"
+                                        x-model.number="channels[channel - 1].pwm"
+                                        @change="channels[channel - 1].pwm = Math.min(100, Math.max(0, Number(channels[channel - 1].pwm || 0))); updatePWM(channel, channels[channel - 1].pwm);"
+                                        class="w-full pr-6 px-3 py-1 border border-gray-300 rounded-lg text-right"
+                                        aria-label="Channel PWM percentage">
+                                    <span class="absolute top-1/2 right-2 -translate-y-1/2 text-sm text-gray-700">%</span>
+                                </div>
                             </div>
                         </div>
                     </template>
