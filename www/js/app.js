@@ -252,7 +252,7 @@ window.appData = function() {
         /**
          * Save configuration to device
          */
-        async saveConfiguration() {
+        async saveConfiguration(updateSchedules = true) {
             if (!this.config.deviceIP) {
                 this.showStatus('error', this.t('Device IP not set'));
                 return;
@@ -262,7 +262,7 @@ window.appData = function() {
                 await API.saveConfigurationToDevice(
                     this.config.deviceIP,
                     this.config,
-                    this.schedules
+                    updateSchedules ? this.schedules : null
                 );
                 this.showStatus('success', this.t('Configuration saved successfully!'));
             } catch (error) {

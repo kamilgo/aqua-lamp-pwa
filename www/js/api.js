@@ -135,9 +135,12 @@ export async function saveConfigurationToDevice(deviceIP, config, schedules) {
         time: config.time ? parseInt(Date.now().toString().substr(0, 10)) : 0,
         timezone_offset: timezoneOffset,
         wifiName: config.wifiName || '',
-        wifiPassword: config.wifiPassword || '',
-        schedules: schedules || []
+        wifiPassword: config.wifiPassword || ''
     };
+
+    if(schedules !== null) {
+        payload.schedules = schedules || [];
+    }
 
     try {
         const response = await fetch(`${getDeviceURL(deviceIP)}/store`, {
