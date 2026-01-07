@@ -480,7 +480,8 @@
 
             // Now dynamically load Alpine.js
             const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js';
+            //script.src = 'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js'; // loads from CDN too long causing race
+            script.src = '/js/alpinejs-3.x.x.min.js';
             script.onload = () => {
                 console.log('Alpine.js loaded and started');
             };
