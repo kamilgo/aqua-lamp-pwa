@@ -23,6 +23,11 @@ self.addEventListener('fetch', (event) => {
         return false;
     }
 
+    if (event.request.url.indexOf('/channels') !== -1) {
+        console.log('skip /channels/*');
+        return false;
+    }
+
     event.respondWith(
         caches.match(event.request)
             .then((response) => response || fetch(event.request))
