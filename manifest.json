@@ -1,6 +1,6 @@
 {
-    "name": "Device Configuration",
-    "short_name": "DeviceConfig",
+    "name": "Konfigurator lampy akwariowej",
+    "short_name": "Akwalampa",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#ffffff",
